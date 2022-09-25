@@ -5,7 +5,6 @@
     "common-misspellings": true,
     "diacritics": true,
     "en-capitalization": true,
-    "en-max-word-count": true,
     "en-spell": true,
     "ginger": true,
     "max-comma": true,

@@ -38,7 +38,7 @@ import (
 					workdir: "/workdir"
 					env: {
 						POETRY_VIRTUALENVS_CREATE: "false"
-						PRE_COMMIT_HOME: "/workdir/.cache/pre-commit"
+						PRE_COMMIT_HOME:           "/workdir/.cache/pre-commit"
 					}
 				}
 			},
@@ -81,7 +81,7 @@ import (
 					name: "poetry"
 					args: ["run", "pre-commit", "install-hooks"]
 				}
-			}
+			},
 		]
 	}
 	// python build with likely changes
@@ -144,59 +144,106 @@ import (
 	filesystem: dagger.#FS
 
 	// output from the build
-	output: _vale_build.output
+	output:      _vale_build.output
 	_vale_build: docker.#Build & {
-				steps: [
-					docker.#Pull & {
-						source: "jdkato/vale:latest"
-					},
-					docker.#Run & {
-						entrypoint: ["apk"]
-						command: {
-							name: "update"
-						}
-					},
-					docker.#Run & {
-						entrypoint: ["apk"]
-						command: {
-							name: "upgrade"
-						}
-					},
-					docker.#Run & {
-						entrypoint: ["apk"]
-						command: {
-							name: "add"
-							args: ["bash"]
-						}
-					},
-					docker.#Copy & {
-						contents: filesystem
-						source:   "./.vale.ini"
-						dest:     "/vale.ini"
-					},
-					docker.#Copy & {
-						contents: filesystem
-						source:   "./README.md"
-						dest:     "/docs/README.md"
-					},
-					docker.#Copy & {
-						contents: filesystem
-						source:   "./research_steps"
-						dest:     "/docs/research_steps"
-					},
-					docker.#Run & {
-						command: {
-							name: "sync"
-						}
-					},
-					docker.#Set & {
-						config: {
-							workdir: "/docs"
-						}
-					},
+		steps: [
+			docker.#Pull & {
+				source: "jdkato/vale:latest"
+			},
+			docker.#Run & {
+				entrypoint: ["apk"]
+				command: {
+					name: "update"
+				}
+			},
+			docker.#Run & {
+				entrypoint: ["apk"]
+				command: {
+					name: "upgrade"
+				}
+			},
+			docker.#Run & {
+				entrypoint: ["apk"]
+				command: {
+					name: "add"
+					args: ["bash"]
+				}
+			},
+			docker.#Copy & {
+				contents: filesystem
+				source:   "./.vale.ini"
+				dest:     "/vale.ini"
+			},
+			docker.#Copy & {
+				contents: filesystem
+				source:   "./README.md"
+				dest:     "/docs/README.md"
+			},
+			docker.#Copy & {
+				contents: filesystem
+				source:   "./research_steps"
+				dest:     "/docs/research_steps"
+			},
+			docker.#Run & {
+				command: {
+					name: "sync"
+				}
+			},
+			docker.#Set & {
+				config: {
+					workdir: "/docs"
+				}
+			},
 
-				]
-			}
+		]
+	}
+}
+
+#TextLintBuild: {
+	// client filesystem
+	filesystem: dagger.#FS
+
+	// output from the build
+	output:          _textlint_build.output
+	_textlint_build: docker.#Build & {
+		steps: [
+			docker.#Pull & {
+				source: "node:latest"
+			},
+			docker.#Run & {
+				command: {
+					name: "mkdir"
+					args: ["/workdir"]
+				}
+			},
+			docker.#Set & {
+				config: {
+					workdir: "/workdir"
+				}
+			},
+			docker.#Copy & {
+				contents: filesystem
+				source:   "./package.json"
+				dest:     "/workdir/package.json"
+			},
+			docker.#Copy & {
+				contents: filesystem
+				source:   "./package-lock.json"
+				dest:     "/workdir/package-lock.json"
+			},
+			docker.#Run & {
+				command: {
+					name: "npm"
+					args: ["install"]}
+			},
+			docker.#Copy & {
+				contents: filesystem
+				source:   "./"
+				dest:     "/workdir"
+				exclude: ["./node_modules"]
+			},
+		]
+	}
 }
 
 dagger.#Plan & {
@@ -226,6 +273,9 @@ dagger.#Plan & {
 			filesystem: client.filesystem."./".read.contents
 		}
 
+		_textlint_build: #TextLintBuild & {
+			filesystem: client.filesystem."./".read.contents
+		}
 
 		// applied code and/or file formatting
 		clean: {
@@ -244,12 +294,11 @@ dagger.#Plan & {
 		}
 
 		// forced non-zero return to show vale warnings and suggestions 
-		vale: bash.#Run & {
+		vale_nonzero: bash.#Run & {
 			input: _vale_build.output
 			script: contents: """
-				/bin/vale . && false
-			"""
-			
+					/bin/vale . && false
+				"""
 		}
 
 		// linting to check for formatting and best practices
@@ -269,8 +318,13 @@ dagger.#Plan & {
 					name: "."
 				}
 			}
-
-			
+			textlint: docker.#Run & {
+				input: _textlint_build.output
+				command: {
+					name: "npx"
+					args: ["textlint", "/workdir/**/*.md"]
+				}
+			}
 		}
 	}
 }
