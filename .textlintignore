@@ -1,0 +1,4 @@
+# Ignore by glob pattern:
+cue.mod/**
+node_modules/**
+styles/**

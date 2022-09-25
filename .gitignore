@@ -131,3 +131,12 @@ dmypy.json
 # dagger ignores
 cue.mod/dagger*
 cue.mod/pkg/
+
+# node ignore
+node_modules
+
+# vale ignores
+styles
+
+# content ignores
+research_steps/**/*.md
