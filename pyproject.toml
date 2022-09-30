@@ -8,6 +8,8 @@ license = "Apache 2.0"
 [tool.poetry.dependencies]
 python = "^3.9"
 proselint = "^0.13.0"
+spacy = "^3.4.1"
+en-core-web-sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.0/en_core_web_sm-3.4.0-py3-none-any.whl"}
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.20.0"

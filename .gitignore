@@ -139,4 +139,4 @@ node_modules
 styles
 
 # content ignores
-research_steps/**/*.md
+research/**/*.md

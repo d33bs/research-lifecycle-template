@@ -13,6 +13,7 @@
     "rousseau": true,
     "spellchecker": true,
     "spelling": true,
-    "stop-words": true
+    "stop-words": true,
+    "no-dead-link": true
   }
 }

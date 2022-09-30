@@ -13,6 +13,7 @@
     "textlint-rule-rousseau": "^1.4.8",
     "textlint-rule-spellchecker": "^2.2.1",
     "textlint-rule-spelling": "^0.3.0",
-    "textlint-rule-stop-words": "^3.0.1"
+    "textlint-rule-stop-words": "^3.0.1",
+    "textlint-rule-no-dead-link": "^4.8.0"
   }
 }

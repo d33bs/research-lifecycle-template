@@ -181,8 +181,8 @@ import (
 			},
 			docker.#Copy & {
 				contents: filesystem
-				source:   "./research_steps"
-				dest:     "/docs/research_steps"
+				source:   "./research"
+				dest:     "/docs/research"
 			},
 			docker.#Run & {
 				command: {
@@ -293,7 +293,7 @@ dagger.#Plan & {
 			}
 		}
 
-		// forced non-zero return to show vale warnings and suggestions 
+		// forced non-zero return to show vale warnings and suggestions
 		vale_nonzero: bash.#Run & {
 			input: _vale_build.output
 			script: contents: """
