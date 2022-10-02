@@ -56,8 +56,6 @@ repos:
     rev: 1.7.4
     hooks:
       - id: bandit
-        args: ["-c", "pyproject.toml"]
-        additional_dependencies: ["bandit[toml]"]
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
@@ -78,3 +76,8 @@ repos:
         entry: pylint
         language: python
         types: [python]
+        # note: we install additional dependencies for
+        # pylint due to it's dynamic analysis capabilities
+        # and the way pre-commit references virtual environments.
+        additional_dependencies:
+          - "spacy>=3.4.1"

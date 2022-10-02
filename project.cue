@@ -38,7 +38,6 @@ import (
 					workdir: "/workdir"
 					env: {
 						POETRY_VIRTUALENVS_CREATE: "false"
-						PRE_COMMIT_HOME:           "/workdir/.cache/pre-commit"
 					}
 				}
 			},
